@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@tailwindcss/browser@latest"></script>
+    <style>
+        /* Custom CSS for the message box */
+        #message-box {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #f0fdf4;
+            color: #15803d;
+            padding: 16px;
+            border-radius: 6px;
+            border: 1px solid #16a34a;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 10;
+        }
+
+        #message-box.show {
+            display: block;
+        }
+
+        #message-box.error {
+            background-color: #fee2e2;
+            color: #dc2626;
+            border-color: #dc2626;
+        }
+    </style>
+</head>
+
+<body class="bg-gray-100 font-inter antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-start py-10">
+        <h1 class="text-4xl font-semibold text-blue-600 mb-8">Student Management System</h1>
+
+        <div id="message-box" class="hidden"></div>
+
+        <div id="add-student-form"
+            class="bg-white rounded-lg shadow-md p-8 mb-6 w-full max-w-md transition-transform hover:scale-105">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6 text-center">Add New Student</h2>
+            <form id="student-form" class="space-y-4">
+                <div>
+                    <label for="full_name" class="block text-gray-700 text-sm font-bold mb-2">Full Name:</label>
+                    <input type="text" id="full_name" name="full_name"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                    <div id="full_name-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <div>
+                    <label for="gender" class="block text-gray-700 text-sm font-bold mb-2">Gender:</label>
+                    <select id="gender" name="gender"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <div id="gender-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <div>
+                    <label for="age" class="block text-gray-700 text-sm font-bold mb-2">Age:</label>
+                    <input type="number" id="age" name="age"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                    <div id="age-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <div>
+                    <label for="department" class="block text-gray-700 text-sm font-bold mb-2">Department:</label>
+                    <input type="text" id="department" name="department"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                    <div id="department-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <div>
+                    <label for="gpa" class="block text-gray-700 text-sm font-bold mb-2">GPA:</label>
+                    <input type="number" id="gpa" name="gpa" min="0" max="4" step="0.01"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                    <div id="gpa-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <div>
+                    <label for="enrollment_year" class="block text-gray-700 text-sm font-bold mb-2">Enrollment
+                        Year:</label>
+                    <input type="number" id="enrollment_year" name="enrollment_year"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                        required>
+                    <div id="enrollment_year-error" class="text-red-500 text-xs italic" style="display: none;"></div>
+                </div>
+                <button type="submit"
+                    class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                    Add Student
+                </button>
+            </form>
+        </div>
+
+        <div id="student-list-container"
+            class="bg-white rounded-lg shadow-md p-6 w-full max-w-2xl transition-transform hover:scale-105">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-4 text-center">Student List</h2>
+            <table id="student-table" class="min-w-full table-auto rounded-lg hidden">
+                <thead class="bg-gray-200">
+                    <tr>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">ID</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">Full Name</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">Gender</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">Age</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">Department</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">GPA</th>
+                        <th class="px-4 py-2 text-left text-gray-600 font-semibold uppercase">Enrollment Year</th>
+                        <th class="px-4 py-2 text-center text-gray-600 font-semibold uppercase">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="text-gray-700">
+                    <tr>
+                        <td colspan="8" class="px-4 py-2 text-center text-gray-500">Loading students...</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p id="no-students-message" class="text-center text-gray-500">No students found.</p>
+        </div>
+    </div>
+
+    <script>
+        const studentForm = document.getElementById('student-form');
+        const studentTable = document.getElementById('student-table');
+        const studentListContainer = document.getElementById('student-list-container');
+        const noStudentsMessage = document.getElementById('no-students-message');
+        const messageBox = document.getElementById('message-box');
+
+        // **API URL is defined here**
+        const API_BASE_URL = 'http://3.38.104.73:8000'; // Include the port number here
+
+        // Validation functions
+        function validateFullName(fullName) {
+            if (!fullName.trim()) {
+                return "Full Name is required";
+            }
+            return "";
+        }
+
+        function validateGender(gender) {
+            if (!gender) {
+                return "Gender is required";
+            }
+            return "";
+        }
+
+        function validateAge(age) {
+            if (!age) {
+                return "Age is required";
+            }
+            if (age <= 0) {
+                return "Age must be greater than 0";
+            }
+            return "";
+        }
+
+        function validateDepartment(department) {
+            if (!department.trim()) {
+                return "Department is required";
+            }
+            return "";
+        }
+
+        function validateGPA(gpa) {
+            if (gpa === "") {
+                return "GPA is required";
+            }
+            const gpaValue = Number(gpa);
+            if (isNaN(gpaValue) || gpaValue < 0 || gpaValue > 4) {
+                return "GPA must be a number between 0 and 4";
+            }
+            return "";
+        }
+
+        function validateEnrollmentYear(year) {
+            if (!year) {
+                return "Enrollment Year is required";
+            }
+            const yearValue = Number(year);
+            if (isNaN(yearValue) || yearValue < 1900 || yearValue > new Date().getFullYear()) {
+                return "Invalid Enrollment Year";
+            }
+            return "";
+        }
+
+        function displayMessage(message, type = 'success') {
+            messageBox.textContent = message;
+            messageBox.className = `fixed top-4 left-1/2 transform -translate-x-1/2 bg-${type === 'success' ? 'green' : 'red'}-100 text-${type === 'success' ? 'green' : 'red'}-700 border border-${type === 'success' ? 'green' : 'red'}-400 px-4 py-2 rounded shadow-md`;
+            messageBox.classList.add('show');
+            setTimeout(() => {
+                messageBox.classList.remove('show');
+            }, 3000);
+        }
+        // Event listener for the form submission
+        studentForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            // Reset error messages
+            document.getElementById('full_name-error').style.display = 'none';
+            document.getElementById('gender-error').style.display = 'none';
+            document.getElementById('age-error').style.display = 'none';
+            document.getElementById('department-error').style.display = 'none';
+            document.getElementById('gpa-error').style.display = 'none';
+            document.getElementById('enrollment_year-error').style.display = 'none';
+
+            // Get form values
+            const fullName = document.getElementById('full_name').value;
+            const gender = document.getElementById('gender').value;
+            const age = document.getElementById('age').value;
+            const department = document.getElementById('department').value;
+            const gpa = document.getElementById('gpa').value;
+            const enrollmentYear = document.getElementById('enrollment_year').value;
+
+            // Perform validation
+            let hasErrors = false;
+            const fullNameError = validateFullName(fullName);
+            const genderError = validateGender(gender);
+            const ageError = validateAge(age);
+            const departmentError = validateDepartment(department);
+            const gpaError = validateGPA(gpa);
+            const enrollmentYearError = validateEnrollmentYear(enrollmentYear);
+
+            if (fullNameError) {
+                document.getElementById('full_name-error').textContent = fullNameError;
+                document.getElementById('full_name-error').style.display = 'block';
+                hasErrors = true;
+            }
+            if (genderError) {
+                document.getElementById('gender-error').textContent = genderError;
+                document.getElementById('gender-error').style.display = 'block';
+                hasErrors = true;
+            }
+            if (ageError) {
+                document.getElementById('age-error').textContent = ageError;
+                document.getElementById('age-error').style.display = 'block';
+                hasErrors = true;
+            }
+            if (departmentError) {
+                document.getElementById('department-error').textContent = departmentError;
+                document.getElementById('department-error').style.display = 'block';
+                hasErrors = true;
+            }
+            if (gpaError) {
+                document.getElementById('gpa-error').textContent = gpaError;
+                document.getElementById('gpa-error').style.display = 'block';
+                hasErrors = true;
+            }
+            if (enrollmentYearError) {
+                document.getElementById('enrollment_year-error').textContent = enrollmentYearError;
+                document.getElementById('enrollment_year-error').style.display = 'block';
+                hasErrors = true;
+            }
+
+            if (hasErrors) {
+                return; // Stop submission if there are errors
+            }
+
+            // Prepare the data to send
+            const newStudent = {
+                full_name: fullName,
+                gender: gender,
+                age: parseInt(age),
+                department: department,
+                gpa: parseFloat(gpa),
+                enrollment_year: parseInt(enrollmentYear)
+            };
+
+            // Send the data to the server using fetch
+            fetch(`${API_BASE_URL}/students`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(newStudent)
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || 'Failed to add student'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    displayMessage(data.message); // Show success message
+                    // Clear the form
+                    document.getElementById('full_name').value = '';
+                    document.getElementById('gender').value = '';
+                    document.getElementById('age').value = '';
+                    document.getElementById('department').value = '';
+                    document.getElementById('gpa').value = '';
+                    document.getElementById('enrollment_year').value = '';
+                    getStudents(); // Refresh the student list
+                })
+                .catch(error => {
+                    displayMessage(error.message, 'error'); // Show error message
+                });
+        });
+
+        // Function to fetch and display the list of students
+        function getStudents() {
+            fetch(`${API_BASE_URL}/students`)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(err => { throw new Error(err.message || 'Failed to fetch students'); });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const studentTableBody = studentTable.querySelector('tbody');
+                    studentTableBody.innerHTML = ''; // Clear the table body
+
+                    if (data.length === 0) {
+                        studentTable.classList.add('hidden');
+                        noStudentsMessage.classList.remove('hidden');
+                    } else {
+                        studentTable.classList.remove('hidden');
+                        noStudentsMessage.classList.add('hidden');
+                        data.forEach(student => {
+                            const row = studentTableBody.insertRow();
+                            const idCell = row.insertCell();
+                            const fullNameCell = row.insertCell();
+                            const genderCell = row.insertCell();
+                            const ageCell = row.insertCell();
+                            const departmentCell = row.insertCell();
+                            const gpaCell = row.insertCell();
+                            const enrollmentYearCell = row.insertCell();
+                            const actionsCell = row.insertCell();
+
+                            idCell.textContent = student.student_id;
+                            fullNameCell.textContent = student.full_name;
+                            genderCell.textContent = student.gender;
+                            ageCell.textContent = student.age;
+                            departmentCell.textContent = student.department;
+                            gpaCell.textContent = student.gpa;
+                            enrollmentYearCell.textContent = student.enrollment_year;
+
+                            const deleteButton = document.createElement('button');
+                            deleteButton.textContent = 'Delete';
+                            deleteButton.className = "bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline text-xs";
+                            deleteButton.addEventListener('click', () => {
+                                deleteStudent(student.student_id);
+                            });
+                            actionsCell.appendChild(deleteButton);
+                            actionsCell.classList.add('text-center');
+                        });
+                    }
+                })
+                .catch(error => {
+                    displayMessage(error.message, 'error'); // Show error message
+                });
+        }
+
+        function deleteStudent(studentId) {
+            if (confirm(`Are you sure you want to delete student with ID ${studentId}?`)) {
+                fetch(`${API_BASE_URL}/students/${studentId}`, {
+                    method: 'DELETE'
+                })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.json().then(err => { throw new Error(err.message || 'Failed to delete student'); });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        displayMessage(data.message);
+                        getStudents(); // Refresh the list after deletion
+                    })
+                    .catch(error => {
+                        displayMessage(error.message, 'error');
+                    });
+            }
+        }
+
+        // Fetch the student list when the page loads
+        window.onload = getStudents;
+    </script>
+</body>
+
+</html>
